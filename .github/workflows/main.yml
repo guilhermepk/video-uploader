@@ -27,6 +27,12 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Create .env file
+        shell: bash
+        run: |
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+
       - name: Build and Package
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -40,11 +46,16 @@ jobs:
         with:
           files: |
             dist/*.exe
-            dist/*.dmg
             dist/*.AppImage
-            dist/*.snap
             dist/*.deb
-            dist/*.rpm
-            dist/*.zip
+
+          # files: |
+          #   dist/*.exe
+          #   dist/*.dmg
+          #   dist/*.AppImage
+          #   dist/*.snap
+          #   dist/*.deb
+          #   dist/*.rpm
+          #   dist/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

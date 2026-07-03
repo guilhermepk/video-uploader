@@ -6,8 +6,8 @@ export async function googleAuthFactory(readGoogleTokenUseCase: ReadGoogleTokenU
   const logger = new Logger(googleAuthFactory.name);
 
   const client = new Auth.OAuth2Client(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
+    __GOOGLE_CLIENT_ID__,
+    __GOOGLE_CLIENT_SECRET__,
     'http://localhost:3000' // Porta local temporária
   );
 
