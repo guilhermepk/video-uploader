@@ -12,7 +12,9 @@ import { CodeChallengeMethod } from 'google-auth-library';
 
 @Injectable()
 export class StartGoogleAuthUseCase {
-  server: http.Server | null = null;
+  private server: http.Server | null = null;
+  private codeVerifier: string = ''
+  private codeChallenge: string = ''
 
   constructor(
     @Inject(Auth.OAuth2Client)
@@ -27,7 +29,10 @@ export class StartGoogleAuthUseCase {
       const logger = new Logger(StartGoogleAuthUseCase.name);
 
       try {
-        const { codeVerifier, codeChallenge } = this.generatePKCE();
+        const pkce = this.generatePKCE();
+
+        this.codeVerifier = pkce.codeVerifier;
+        this.codeChallenge = pkce.codeChallenge;
 
         if (!this.server) {
           this.server = http.createServer(async (request, response) => {
@@ -43,7 +48,7 @@ export class StartGoogleAuthUseCase {
 
                 const tokens = await this.oAuth2Client.getToken({
                   code,
-                  codeVerifier
+                  codeVerifier: this.codeVerifier
                 })
                   .then(res => res.tokens)
                   .catch(error => {
@@ -84,11 +89,10 @@ export class StartGoogleAuthUseCase {
             'https://www.googleapis.com/auth/userinfo.profile',
             'https://www.googleapis.com/auth/youtube'
           ],
-          code_challenge: codeChallenge,
+          code_challenge: this.codeChallenge,
           code_challenge_method: CodeChallengeMethod.S256
         });
 
-        logger.log(`Abrindo URL: ${authUrl}`)
         shell.openExternal(authUrl);
       } catch (error) {
         this.removeServer();
