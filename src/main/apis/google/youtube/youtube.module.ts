@@ -6,6 +6,8 @@ import { GetPlaylistsUseCase } from "./use-cases/get-playlists/get-playlists.use
 import { GetPlaylistItemsUseCase } from "./use-cases/get-playlist-items/get-playlist-items.use-case";
 import { UpdateVideoUseCase } from "./use-cases/update-video/update-video.use-case";
 import { FindVideoByIdUseCase } from "./use-cases/find-video-by-id/find-video-by-id.use-case";
+import { InsertVideoInPlaylistsUseCase } from "./use-cases/insert-video-in-playlists/insert-video-in-playlists.use-case";
+import { FindPlaylistByIdUseCase } from "./use-cases/find-playlist-by-id/find-playlist-by-id.use-case";
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { FindVideoByIdUseCase } from "./use-cases/find-video-by-id/find-video-by
     GetPlaylistItemsUseCase,
     UpdateVideoUseCase,
     FindVideoByIdUseCase,
+    InsertVideoInPlaylistsUseCase,
+    FindPlaylistByIdUseCase
   ],
   exports: [
     UpdateVideoUseCase,
