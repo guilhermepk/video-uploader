@@ -2,6 +2,7 @@ import { tryCatch } from "@main/common/utils/try-catch";
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { Auth, youtube_v3 } from "googleapis";
 import { UpdateVideoDto } from "../../models/dtos/update-video.dto";
+import { FindVideoByIdUseCase } from "../find-video-by-id/find-video-by-id.use-case";
 
 // Função simples para aguardar em caso de falha
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -16,6 +17,9 @@ export class UpdateVideoUseCase {
 
     @Inject(Auth.OAuth2Client)
     private readonly oAuth2Client: Auth.OAuth2Client,
+
+    @Inject(FindVideoByIdUseCase)
+    private readonly findVideoByIdUseCase: FindVideoByIdUseCase,
   ) { }
 
   async execute(data: UpdateVideoDto): Promise<youtube_v3.Schema$Video> {
@@ -25,22 +29,13 @@ export class UpdateVideoUseCase {
 
       while (retries > 0) {
         try {
-          const videoResponse = await this.youtubeClient.videos.list({
-            auth: this.oAuth2Client,
-            part: ['snippet'],
-            id: [id],
-          });
-
-          const video = videoResponse.data.items?.[0];
-          if (!video || !video.snippet) {
-            throw new Error(`Vídeo não encontrado para o ID: ${id}`);
-          }
+          const foundVideo = await this.findVideoByIdUseCase.execute(id);
 
           const updatedSnippet = {
-            ...video.snippet,
-            title,
+            ...foundVideo.snippet,
+            title: title ?? foundVideo.snippet?.title ?? '',
             description,
-            categoryId: video.snippet.categoryId ?? '22',
+            categoryId: foundVideo.snippet?.categoryId ?? '22',
           };
 
           const updateResponse = await this.youtubeClient.videos.update({

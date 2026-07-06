@@ -1,5 +1,5 @@
 export class UpdateVideoDto {
   id: string;
-  title: string;
-  description: string | undefined;
+  title?: string;
+  description?: string;
 }

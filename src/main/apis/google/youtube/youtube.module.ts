@@ -5,6 +5,7 @@ import { GoogleModule } from "../google.module";
 import { GetPlaylistsUseCase } from "./use-cases/get-playlists/get-playlists.use-case";
 import { GetPlaylistItemsUseCase } from "./use-cases/get-playlist-items/get-playlist-items.use-case";
 import { UpdateVideoUseCase } from "./use-cases/update-video/update-video.use-case";
+import { FindVideoByIdUseCase } from "./use-cases/find-video-by-id/find-video-by-id.use-case";
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { UpdateVideoUseCase } from "./use-cases/update-video/update-video.use-ca
     PublishVideoUseCase,
     GetPlaylistsUseCase,
     GetPlaylistItemsUseCase,
-    UpdateVideoUseCase
+    UpdateVideoUseCase,
+    FindVideoByIdUseCase,
   ],
   exports: [
     UpdateVideoUseCase,
