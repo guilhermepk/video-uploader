@@ -33,7 +33,6 @@ export default function SelectPlaylistStep(): React.JSX.Element {
 
       <Select
         defaultText="Escolha uma playlist"
-        className=""
         label="Playlist"
         value={flowData.playlist ? { label: flowData.playlist.snippet?.title ?? 'Nome indefinido', value: flowData.playlist.id ?? '' } : undefined}
         options={playlists.map(item => ({ label: item.snippet?.title ?? '', value: item.id ?? '' }))}
