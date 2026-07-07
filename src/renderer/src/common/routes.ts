@@ -2,6 +2,7 @@ import UpdateVideosFlowPage from "@renderer/pages/update-videos-flow/UpdateVideo
 import FullFlowPage from "@renderer/pages/FullFlowPage";
 import HomePage from "@renderer/pages/home/HomePage";
 import LoginPage from "@renderer/pages/LoginPage";
+import CopyPlaylistPage from "@renderer/pages/CopyPlaylistPage";
 
 export const routes = {
   loginPage: {
@@ -17,7 +18,13 @@ export const routes = {
     element: FullFlowPage
   },
   updateVideosFlowPage: {
+    name: 'Fluxo de atualização de vídeos',
     path: '/update-videos-flow',
     element: UpdateVideosFlowPage
+  },
+  copyPlaylistPage: {
+    name: 'Copiar playlist',
+    path: '/copy-playlist',
+    element: CopyPlaylistPage
   }
 }

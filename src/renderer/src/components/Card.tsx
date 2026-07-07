@@ -15,7 +15,7 @@ export default function Card({
           bg-[#1b1b1f]
           shadow-sm shadow-black
           rounded-[10px]
-          h-fit w-[350px]
+          h-full w-[350px]
           text-center
           flex flex-col items-center justify-center gap-5
           ${onClick ? `

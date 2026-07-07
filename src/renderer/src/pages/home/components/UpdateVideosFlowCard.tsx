@@ -1,6 +1,6 @@
 import { routes } from "@renderer/common/routes";
 import Card from "@renderer/components/Card";
-import { FilePenLine } from "lucide-react";
+import { Pen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function UpdateVideosFlowCard(): React.JSX.Element {
@@ -8,7 +8,7 @@ export default function UpdateVideosFlowCard(): React.JSX.Element {
 
   return (
     <Card onClick={() => navigate(routes.updateVideosFlowPage.path)}>
-      <FilePenLine />
+      <Pen />
 
       <h2> Fluxo de atualização de vídeos </h2>
 

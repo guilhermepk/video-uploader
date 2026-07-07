@@ -155,7 +155,7 @@ export default function UpdateVideosFlowPage(): React.JSX.Element {
 
   return (
     <Page className="p-0!">
-      <LocalNavbar />
+
       <div className="w-[80%] bottom-[10px]">
         <Stepper
           steps={steps}
@@ -166,14 +166,5 @@ export default function UpdateVideosFlowPage(): React.JSX.Element {
         />
       </div>
     </Page>
-  );
-}
-
-function LocalNavbar(): React.JSX.Element {
-  return (
-    <div className="bg-[#1b1b1f] shadow-md w-full h-[60px] flex items-center gap-7 py-2 px-4">
-      <BackButton />
-      <h1 className="text-[25px]! text-white"> Fluxo de atualização de vídeos </h1>
-    </div>
   );
 }
