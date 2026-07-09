@@ -1,4 +1,4 @@
-import { forwardRef, Module } from "@nestjs/common";
+import { Module } from "@nestjs/common";
 import { Auth, google, youtube_v3 } from "googleapis";
 import { PublishVideoUseCase } from "./use-cases/publish-video/publish-video.use-case";
 import { GoogleModule } from "../google.module";
@@ -11,7 +11,7 @@ import { FindPlaylistByIdUseCase } from "./use-cases/find-playlist-by-id/find-pl
 
 @Module({
   imports: [
-    forwardRef(() => GoogleModule)
+    GoogleModule
   ],
   providers: [
     {
