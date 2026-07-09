@@ -1,6 +1,6 @@
 import Page from "@renderer/components/Page";
 import UpdateVideosFlowCard from "./components/UpdateVideosFlowCard";
-import CopyPlaylistCard from "./components/CopyPlaylistCard";
+import CopyPlaylistItemsCard from "./components/CopyPlaylistItemsCard";
 // import FullFlowCard from "./components/FullFlowCard";
 
 export default function HomePage(): React.JSX.Element {
@@ -14,7 +14,7 @@ export default function HomePage(): React.JSX.Element {
         {/* <FullFlowCard /> */}
         <UpdateVideosFlowCard />
 
-        <CopyPlaylistCard />
+        <CopyPlaylistItemsCard />
       </div>
     </Page>
   );

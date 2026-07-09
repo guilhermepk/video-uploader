@@ -22,7 +22,7 @@ export default function App(): React.JSX.Element {
               <Route path={routes.updateVideosFlowPage.path} element={<routes.updateVideosFlowPage.element />} />
             </Route>
 
-            <Route path={routes.copyPlaylistPage.path} element={<routes.copyPlaylistPage.element />} />
+            <Route path={routes.copyPlaylistItemsPage.path} element={<routes.copyPlaylistItemsPage.element />} />
           </Route>
         </Route>
       </Routes>

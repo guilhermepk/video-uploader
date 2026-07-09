@@ -5,7 +5,7 @@ import { ChevronsDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-export default function CopyPlaylistPage(): React.JSX.Element {
+export default function CopyPlaylistItemsPage(): React.JSX.Element {
   const [playlists, setPlaylists] = useState<Array<youtube_v3.Schema$Playlist>>([]);
   const [originPlaylist, setOriginPlaylist] = useState<youtube_v3.Schema$Playlist | undefined>(undefined);
   const [destinationPlaylist, setDestinationPlaylist] = useState<youtube_v3.Schema$Playlist | undefined>(undefined);
