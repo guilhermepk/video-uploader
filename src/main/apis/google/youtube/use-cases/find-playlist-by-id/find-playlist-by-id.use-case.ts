@@ -17,7 +17,7 @@ export class FindPlaylistByIdUseCase {
     return await tryCatch(async () => {
       const response = await this.youtubeClient.playlists.list({
         auth: this.oAuth2Client,
-        part: ['snippet'],
+        part: ['snippet', 'contentDetails'],
         id: [playlistId]
       });
 

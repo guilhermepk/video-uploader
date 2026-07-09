@@ -4,6 +4,7 @@ import { tryCatch } from "@main/common/utils/try-catch";
 import { Auth, youtube_v3 } from "googleapis";
 import { FindVideoByIdUseCase } from "../find-video-by-id/find-video-by-id.use-case";
 import { FindPlaylistByIdUseCase } from "../find-playlist-by-id/find-playlist-by-id.use-case";
+import { InternalError } from "@shared/models/errors/internal.error";
 
 @Injectable()
 export class InsertVideoInPlaylistsUseCase {
@@ -21,29 +22,56 @@ export class InsertVideoInPlaylistsUseCase {
     private readonly findPlaylistByIdUseCase: FindPlaylistByIdUseCase
   ) { }
 
-  async execute(data: InsertVideoInPlaylistDto) {
+  async execute(data: InsertVideoInPlaylistDto): Promise<{ success: boolean }> {
+    let videoTitle: string | null = null;
+    let playlistTitle: string | null = null;
+
     return await tryCatch(async () => {
-      const { playlistIds, videoId } = data;
+      let videoId: string | null = null;
+      let video: youtube_v3.Schema$Video;
 
-      await this.findVideoByIdUseCase.execute(videoId);
+      if (typeof data.video == 'string') {
+        videoId = data.video;
+        video = await this.findVideoByIdUseCase.execute(data.video);
+      } else {
+        videoId = data.video.id ?? null;
+        video = data.video;
+      }
 
-      for (const playlistId of playlistIds) {
-        await this.findPlaylistByIdUseCase.execute(playlistId);
+      if (!videoId) throw new InternalError(`É necessário o ID dO vídeo para inserir um vídeo em uma playlist. (Necessário correção no código fonte).`)
 
-        await this.youtubeClient.playlistItems.insert({
-          auth: this.oAuth2Client,
-          part: ['snippet'],
-          requestBody: {
-            snippet: {
-              playlistId,
-              resourceId: {
-                kind: 'youtube#video',
-                videoId
-              }
+      videoTitle = video.snippet?.title ?? null;
+
+      let playlistId: string | null = null;
+      let playlist: youtube_v3.Schema$Playlist;
+
+      if (typeof data.playlist == 'string') {
+        playlistId = data.playlist;
+        playlist = await this.findPlaylistByIdUseCase.execute(playlistId);
+      } else {
+        playlistId = data.playlist.id ?? null;
+        playlist = data.playlist;
+      }
+
+      if (!playlistId) throw new InternalError(`É necessário o ID da playlist para inserir um vídeo. (Necessário correção no código fonte).`)
+
+      playlistTitle = playlist.snippet?.title ?? null;
+
+      const response = await this.youtubeClient.playlistItems.insert({
+        auth: this.oAuth2Client,
+        part: ['snippet'],
+        requestBody: {
+          snippet: {
+            playlistId,
+            resourceId: {
+              kind: 'youtube#video',
+              videoId: videoId
             }
           }
-        });
-      }
-    }, `Erro ao inserir vídeo em playlist(s)`);
+        }
+      });
+
+      return { success: response.ok };
+    }, `Erro ao inserir vídeo${videoTitle ? ` "${videoTitle}"` : ''} na playlist${playlistTitle ? ` "${playlistTitle}"` : ''}`);
   }
 }

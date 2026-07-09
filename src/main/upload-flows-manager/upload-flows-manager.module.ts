@@ -4,6 +4,7 @@ import { FileManagerModule } from "@main/file-manager/file-manager.module";
 import { YoutubeModule } from "@main/apis/google/youtube/youtube.module";
 // import { GetFileUseCase } from "@main/file-manager/use-cases/get-file/get-file.use-case";
 import { DownloadAndRenameUseCase } from "./use-cases/download-and-rename/download-and-rename.use-case";
+import { CopyPlaylistItemsUseCase } from "./use-cases/copy-playlist-items/copy-playlist-items.use-case";
 
 @Module({
   imports: [
@@ -12,7 +13,8 @@ import { DownloadAndRenameUseCase } from "./use-cases/download-and-rename/downlo
   ],
   providers: [
     UpdateVideosUseCase,
-    DownloadAndRenameUseCase
+    DownloadAndRenameUseCase,
+    CopyPlaylistItemsUseCase
   ]
 })
 export class UploadFlowsManagerModule implements OnApplicationBootstrap {

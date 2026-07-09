@@ -29,7 +29,9 @@ import { FindPlaylistByIdUseCase } from "./use-cases/find-playlist-by-id/find-pl
   ],
   exports: [
     UpdateVideoUseCase,
-    GetPlaylistItemsUseCase
+    GetPlaylistItemsUseCase,
+    InsertVideoInPlaylistsUseCase,
+    FindPlaylistByIdUseCase
   ]
 })
 export class YoutubeModule { }
