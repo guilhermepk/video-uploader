@@ -16,10 +16,11 @@ export default function Button({
       onClick={onClick}
       disabled={disabled}
       className={`
+        flex flex-col items-center justify-center gap-3
         text-white
         border border-transparent
         rounded-[10px]
-        py-2 px-4
+        py-3 px-4
         ${transparentBg
           ? 'bg-transparent'
           : 'bg-[#1b1b1f] shadow-black shadow-sm'

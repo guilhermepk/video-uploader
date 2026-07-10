@@ -1,7 +1,10 @@
+import Button from "@renderer/components/Button";
 import Page from "@renderer/components/Page";
 import Select from "@renderer/components/Select";
+import { IpcResponse } from "@shared/models/interfaces/ipc-response.interface";
+import { CopyPlaylistItemsResponse } from "@shared/models/responses/upload-flows-manager/copy-playlist-items-response";
 import { youtube_v3 } from "googleapis";
-import { ChevronsDown } from "lucide-react";
+import { ChevronsDown, CopyPlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -9,6 +12,63 @@ export default function CopyPlaylistItemsPage(): React.JSX.Element {
   const [playlists, setPlaylists] = useState<Array<youtube_v3.Schema$Playlist>>([]);
   const [originPlaylist, setOriginPlaylist] = useState<youtube_v3.Schema$Playlist | undefined>(undefined);
   const [destinationPlaylist, setDestinationPlaylist] = useState<youtube_v3.Schema$Playlist | undefined>(undefined);
+
+  async function copyPlaylistItems(): Promise<void> {
+    if (!originPlaylist || !destinationPlaylist) {
+      const emptyFields: string[] = [];
+      if (!originPlaylist) emptyFields.push('A playlist de origem');
+      if (!destinationPlaylist) emptyFields.push('A playlist de destino');
+      toast(`Selecione: ${emptyFields.map(item => `"${item}"`).join('; ')}`);
+      return
+    }
+
+    if (!originPlaylist.id || !destinationPlaylist.id) {
+      const missingIds: string[] = [];
+      if (!originPlaylist.id) missingIds.push('Playlist de origem');
+      if (!destinationPlaylist.id) missingIds.push('Playlist de destino');
+      toast(`Não foi possível obter o ID de: ${missingIds.map(item => `"${item}"`).join('; ')}\n(É necessário correção no código fonte)`);
+      return
+    }
+
+    let successToastContent: string = '';
+    let errorToastContent: string = '';
+
+    toast.promise(
+      async () => {
+        try {
+          const response = await window.api.uploadFlowsManager.copyPlaylistItems({
+            originPlaylistId: originPlaylist.id ?? '',
+            destinationPlaylistId: destinationPlaylist.id ?? '',
+          });
+
+          if (response.success) {
+            const totalVideos: number = response.data.length;
+            const totalSuccessfullVideos: number = response.data.reduce((previous, current) => previous += current.success ? 1 : 0, 0)
+            const totalErrorVideos: number = response.data.reduce((previous, current) => previous += current.success ? 0 : 1, 0)
+            let message: string = `Resultado de ${totalVideos} vídeo(s)`;
+            if (totalSuccessfullVideos > 0) message += `\nBem-sucedidos: (${totalSuccessfullVideos}/${totalVideos})`
+            if (totalErrorVideos > 0) message += `\nDeram errado: (${totalErrorVideos}/${totalVideos})`;
+            successToastContent = message;
+
+            setOriginPlaylist(undefined);
+            setDestinationPlaylist(undefined);
+          } else {
+            const { code, message, details } = response.error;
+            throw new Error(`Erro: ${code} | ${message}${details ? ` | ${details.join('; ')}` : ''}`);
+          }
+        } catch (error: any) {
+          errorToastContent = error.message ?? String(error);
+          throw error;
+        }
+      },
+      {
+        loading: 'Copiando itens... Pera aí!',
+        success: () => <b>{successToastContent}</b>,
+        error: () => <b className="select-text">{errorToastContent}</b>
+      },
+      { duration: Infinity, toasterId: 'copy-playlists-response-toast' }
+    );
+  }
 
   async function getPlaylists(): Promise<void> {
     const response = await window.api.google.youtube.getPlaylists();
@@ -35,7 +95,7 @@ export default function CopyPlaylistItemsPage(): React.JSX.Element {
           label="Playlist de origem"
           defaultText="Escolha uma playlist"
           value={originPlaylist ? { label: originPlaylist?.snippet?.title ?? 'Nome indefinido', value: originPlaylist.id ?? '' } : undefined}
-          options={playlists.map(item => ({ label: item.snippet?.title ?? 'Nome indefinido', value: item.id ?? '' }))}
+          options={playlists.filter(item => item.id != destinationPlaylist?.id).map(item => ({ label: item.snippet?.title ?? 'Nome indefinido', value: item.id ?? '' }))}
           onChange={(newValue) => {
             const playlist = playlists.find(item => item.id === newValue.value);
             setOriginPlaylist(playlist);
@@ -48,13 +108,20 @@ export default function CopyPlaylistItemsPage(): React.JSX.Element {
           label="Playlist de destino"
           defaultText="Escolha uma playlist"
           value={destinationPlaylist ? { label: destinationPlaylist?.snippet?.title ?? 'Nome indefinido', value: destinationPlaylist.id ?? '' } : undefined}
-          options={playlists.map(item => ({ label: item.snippet?.title ?? 'Nome indefinido', value: item.id ?? '' }))}
+          options={playlists.filter(item => item.id != originPlaylist?.id).map(item => ({ label: item.snippet?.title ?? 'Nome indefinido', value: item.id ?? '' }))}
           onChange={(newValue) => {
             const playlist = playlists.find(item => item.id === newValue.value);
             setDestinationPlaylist(playlist);
           }}
         />
       </div>
+
+      <Button
+        onClick={() => copyPlaylistItems()}
+      >
+        <CopyPlus />
+        Copiar itens da playlist
+      </Button>
     </Page>
   );
 }

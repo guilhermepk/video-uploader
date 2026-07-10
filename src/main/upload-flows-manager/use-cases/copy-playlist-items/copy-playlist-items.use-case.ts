@@ -5,6 +5,7 @@ import { tryCatch } from "@main/common/utils/try-catch";
 import { Inject, Injectable } from "@nestjs/common";
 import { CopyPlaylistItemsDto } from "@shared/models/dtos/upload-flow-manager/copy-playlist-items.dto";
 import { InternalError } from "@shared/models/errors/internal.error";
+import { CopyPlaylistItemsResponse } from "@shared/models/responses/upload-flows-manager/copy-playlist-items-response";
 import { youtube_v3 } from "googleapis";
 
 @Injectable()
@@ -20,7 +21,7 @@ export class CopyPlaylistItemsUseCase {
     private readonly insertVideoInPlaylistsUseCase: InsertVideoInPlaylistsUseCase
   ) { }
 
-  async execute(data: CopyPlaylistItemsDto) {
+  async execute(data: CopyPlaylistItemsDto): Promise<CopyPlaylistItemsResponse> {
     return await tryCatch(async () => {
       const { originPlaylistId, destinationPlaylistId } = data;
 
@@ -34,10 +35,7 @@ export class CopyPlaylistItemsUseCase {
 
       const originPlaylistItens: Array<youtube_v3.Schema$PlaylistItem> = await this.getPlaylistItemsUseCase.execute(originPlaylist, originPlaylist.contentDetails?.itemCount);
 
-      const results: Array<{
-        videoId: string,
-        success: boolean
-      }> = [];
+      const results: CopyPlaylistItemsResponse = [];
 
       for (const playlistItem of originPlaylistItens) {
         const { videoId } = playlistItem.contentDetails ?? {};

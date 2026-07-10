@@ -34,7 +34,7 @@ export class GetPlaylistItemsUseCase {
     return await tryCatch(async () => {
       const response = await this.youtubeClient.playlistItems.list({
         auth: this.oAuth2Client,
-        part: ['snippet'],
+        part: ['snippet', 'contentDetails'],
         playlistId,
         maxResults: playlistItemCount > 0 ? playlistItemCount : 50,
       });

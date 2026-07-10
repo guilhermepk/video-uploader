@@ -1,9 +1,11 @@
+import { CopyPlaylistItemsDto } from "@shared/models/dtos/upload-flow-manager/copy-playlist-items.dto"
 import { DownloadAndRenameDto } from "@shared/models/dtos/upload-flow-manager/download-and-rename.dto"
 import { UpdateVideosDto } from "@shared/models/dtos/upload-flow-manager/update-videos.dto"
 import { IpcResponse } from "@shared/models/interfaces/ipc-response.interface"
 import { GetGoogleUserDataResponse } from "@shared/models/responses/google/get-google-user-data.response"
 import { GetPlaylistsResponse } from "@shared/models/responses/google/youtube/get-playlists.response"
 import { SubscriptionResponse } from "@shared/models/responses/subscription.response"
+import { CopyPlaylistItemsResponse } from "@shared/models/responses/upload-flows-manager/copy-playlist-items-response"
 import { DownloadAndRenameResponse } from "@shared/models/responses/upload-flows-manager/download-and-rename.response"
 import { UpdateVideosResponse } from "@shared/models/responses/upload-flows-manager/update-videos.response"
 import { DownloadProgresSubscriptionPayload } from "@shared/models/subscription-payloads/download-progress.subscription-payload"
@@ -27,6 +29,7 @@ export interface ContextBridgeApi {
     downloadAndRename: (payload: DownloadAndRenameDto) => Promise<IpcResponse<DownloadAndRenameResponse>>,
     onDownloadProgress: (callback: (payload: DownloadProgresSubscriptionPayload) => void) => SubscriptionResponse
     onTotalRows: (callback: (payload: TotalRowsSubscriptionPayload) => void) => SubscriptionResponse,
-    updateVideos: (payload: UpdateVideosDto) => Promise<IpcResponse<UpdateVideosResponse>>
+    updateVideos: (payload: UpdateVideosDto) => Promise<IpcResponse<UpdateVideosResponse>>,
+    copyPlaylistItems: (payload: CopyPlaylistItemsDto) => Promise<IpcResponse<CopyPlaylistItemsResponse>>
   },
 }
