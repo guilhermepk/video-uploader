@@ -1,8 +1,6 @@
 import Button from "@renderer/components/Button";
 import Page from "@renderer/components/Page";
 import Select from "@renderer/components/Select";
-import { IpcResponse } from "@shared/models/interfaces/ipc-response.interface";
-import { CopyPlaylistItemsResponse } from "@shared/models/responses/upload-flows-manager/copy-playlist-items-response";
 import { youtube_v3 } from "googleapis";
 import { ChevronsDown, CopyPlus } from "lucide-react";
 import { useEffect, useState } from "react";
