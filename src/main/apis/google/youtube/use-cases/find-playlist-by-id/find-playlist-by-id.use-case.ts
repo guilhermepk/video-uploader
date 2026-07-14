@@ -1,3 +1,4 @@
+import { googleApiResilience } from "@main/apis/google/utils/google-api-resilience";
 import { tryCatch } from "@main/common/utils/try-catch";
 import { Inject, Injectable } from "@nestjs/common";
 import { NotFoundError } from "@shared/models/errors/not-found.error";
@@ -15,17 +16,19 @@ export class FindPlaylistByIdUseCase {
 
   async execute(playlistId: string): Promise<youtube_v3.Schema$Playlist> {
     return await tryCatch(async () => {
-      const response = await this.youtubeClient.playlists.list({
-        auth: this.oAuth2Client,
-        part: ['snippet', 'contentDetails'],
-        id: [playlistId]
-      });
+      return await googleApiResilience(async () => {
+        const response = await this.youtubeClient.playlists.list({
+          auth: this.oAuth2Client,
+          part: ['snippet', 'contentDetails'],
+          id: [playlistId]
+        });
 
-      const playlist = response.data.items?.[0];
+        const playlist = response.data.items?.[0];
 
-      if (!playlist) throw new NotFoundError(`Nenhuma playlist encontrada com o ID "${playlistId}"`)
+        if (!playlist) throw new NotFoundError(`Nenhuma playlist encontrada com o ID "${playlistId}"`)
 
-      return playlist;
+        return playlist;
+      }, { actionName: 'Busca de playlist por ID' });
     }, `Erro ao buscar playlist por ID "${playlistId}"`);
   }
 }

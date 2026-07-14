@@ -1,3 +1,4 @@
+import { googleApiResilience } from "@main/apis/google/utils/google-api-resilience";
 import { tryCatch } from "@main/common/utils/try-catch";
 import { Inject, Injectable } from "@nestjs/common";
 import { NotFoundError } from "@shared/models/errors/not-found.error";
@@ -15,17 +16,19 @@ export class FindVideoByIdUseCase {
 
   async execute(videoId: string): Promise<youtube_v3.Schema$Video> {
     return await tryCatch(async () => {
-      const response = await this.youtubeClient.videos.list({
-        auth: this.oAuth2Client,
-        part: ['snippet'],
-        id: [videoId]
-      });
+      return await googleApiResilience(async () => {
+        const response = await this.youtubeClient.videos.list({
+          auth: this.oAuth2Client,
+          part: ['snippet'],
+          id: [videoId]
+        });
 
-      const video = response.data.items?.[0];
+        const video = response.data.items?.[0];
 
-      if (!video) throw new NotFoundError(`Nenhum vídeo encontrado com o ID "${videoId}"`)
+        if (!video) throw new NotFoundError(`Nenhum vídeo encontrado com o ID "${videoId}"`)
 
-      return video;
+        return video;
+      }, { actionName: 'Busca de vídeo por ID' });
     }, `Erro ao buscar vídeo por ID "${videoId}"`)
   }
 }

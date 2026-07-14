@@ -26,7 +26,7 @@ export class CopyPlaylistItemsUseCase {
       const { originPlaylistId, destinationPlaylistId } = data;
 
       const originPlaylist: youtube_v3.Schema$Playlist = await this.findPlaylistByIdUseCase.execute(originPlaylistId);
-      const destinationPlaylist: youtube_v3.Schema$Playlist = await this.findPlaylistByIdUseCase.execute(destinationPlaylistId);
+      // const destinationPlaylist: youtube_v3.Schema$Playlist = await this.findPlaylistByIdUseCase.execute(destinationPlaylistId);
 
       if (!originPlaylist.contentDetails?.itemCount) {
         const playlistTitle: string = originPlaylist.snippet?.title ? `"${originPlaylist.snippet?.title}"` : '';
@@ -47,7 +47,7 @@ export class CopyPlaylistItemsUseCase {
 
         const result = await this.insertVideoInPlaylistsUseCase.execute({
           video: videoId,
-          playlist: destinationPlaylist
+          playlist: destinationPlaylistId
         });
 
         results.push({ videoId, success: result.success });

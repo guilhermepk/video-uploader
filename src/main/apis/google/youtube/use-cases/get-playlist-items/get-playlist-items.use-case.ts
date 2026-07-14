@@ -3,6 +3,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { InternalError } from "@shared/models/errors/internal.error";
 import { Auth, youtube_v3 } from "googleapis";
 import { FindPlaylistByIdUseCase } from "../find-playlist-by-id/find-playlist-by-id.use-case";
+import { googleApiResilience } from "@main/apis/google/utils/google-api-resilience";
 
 @Injectable()
 export class GetPlaylistItemsUseCase {
@@ -32,14 +33,16 @@ export class GetPlaylistItemsUseCase {
     }
 
     return await tryCatch(async () => {
-      const response = await this.youtubeClient.playlistItems.list({
-        auth: this.oAuth2Client,
-        part: ['snippet', 'contentDetails'],
-        playlistId,
-        maxResults: playlistItemCount > 0 ? playlistItemCount : 50,
-      });
+      return await googleApiResilience(async () => {
+        const response = await this.youtubeClient.playlistItems.list({
+          auth: this.oAuth2Client,
+          part: ['snippet', 'contentDetails'],
+          playlistId,
+          maxResults: playlistItemCount > 0 ? playlistItemCount : 50,
+        });
 
-      return response.data.items ?? [];
+        return response.data.items ?? [];
+      }, { actionName: 'Busca de itens de playlist' });
     }, `Erro ao buscar itens de playlist`);
   }
 }

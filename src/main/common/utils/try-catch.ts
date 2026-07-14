@@ -72,7 +72,7 @@ export function handleError<OptionsType extends ErrorOptions>(error: any, errorO
 
   if (error instanceof IpcError === false) {
     const logger = new Logger(handleError.name);
-    logger.error(error);
+    logger.error(`${error.message ?? error}`);
   }
 
   const newError: IpcError = (error instanceof IpcError)

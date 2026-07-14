@@ -9,7 +9,7 @@ import { SecureDataManagerModule } from './secure-data-manager/secure-data-manag
     SecureDataManagerModule,
     GoogleModule,
     FileManagerModule,
-    UploadFlowsManagerModule
+    UploadFlowsManagerModule,
   ]
 })
 export class AppModule { }
