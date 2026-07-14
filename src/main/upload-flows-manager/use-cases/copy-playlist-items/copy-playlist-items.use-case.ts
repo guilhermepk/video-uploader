@@ -2,7 +2,7 @@ import { FindPlaylistByIdUseCase } from "@main/apis/google/youtube/use-cases/fin
 import { GetPlaylistItemsUseCase } from "@main/apis/google/youtube/use-cases/get-playlist-items/get-playlist-items.use-case";
 import { InsertVideoInPlaylistsUseCase } from "@main/apis/google/youtube/use-cases/insert-video-in-playlists/insert-video-in-playlists.use-case";
 import { tryCatch } from "@main/common/utils/try-catch";
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { CopyPlaylistItemsDto } from "@shared/models/dtos/upload-flow-manager/copy-playlist-items.dto";
 import { InternalError } from "@shared/models/errors/internal.error";
 import { CopyPlaylistItemsResponse } from "@shared/models/responses/upload-flows-manager/copy-playlist-items-response";
@@ -10,6 +10,8 @@ import { youtube_v3 } from "googleapis";
 
 @Injectable()
 export class CopyPlaylistItemsUseCase {
+  private logger = new Logger(CopyPlaylistItemsUseCase.name);
+
   constructor(
     @Inject(FindPlaylistByIdUseCase)
     private readonly findPlaylistByIdUseCase: FindPlaylistByIdUseCase,
