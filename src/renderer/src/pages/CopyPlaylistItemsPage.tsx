@@ -2,6 +2,8 @@ import { routes } from "@renderer/common/routes";
 import Button from "@renderer/components/Button";
 import Page from "@renderer/components/Page";
 import Select from "@renderer/components/Select";
+import Table from "@renderer/components/Table";
+import { ResultItemInCopyPlaylistItemsResponse } from "@shared/models/responses/upload-flows-manager/copy-playlist-items-response";
 import { youtube_v3 } from "googleapis";
 import { ChevronsDown, CopyPlus } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -15,6 +17,7 @@ export default function CopyPlaylistItemsPage(): React.JSX.Element {
   const [destinationPlaylist, setDestinationPlaylist] = useState<youtube_v3.Schema$Playlist | undefined>(undefined);
   const [finished, setFinished] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [failedVideos, setFailedVideos] = useState<Array<ResultItemInCopyPlaylistItemsResponse>>([]);
 
   async function copyPlaylistItems(): Promise<void> {
     if (!originPlaylist || !destinationPlaylist) {
@@ -53,6 +56,8 @@ export default function CopyPlaylistItemsPage(): React.JSX.Element {
           if (totalSuccessfullVideos > 0) message += `\nBem-sucedidos: (${totalSuccessfullVideos}/${totalVideos})`
           if (totalErrorVideos > 0) message += `\nDeram errado: (${totalErrorVideos}/${totalVideos})`;
           successToastMessage = message;
+
+          setFailedVideos(response.data.filter(item => !item.success));
 
           setOriginPlaylist(undefined);
           setDestinationPlaylist(undefined);
@@ -150,7 +155,25 @@ export default function CopyPlaylistItemsPage(): React.JSX.Element {
 
       {finished && (
         <>
-          <p> Sucesso! </p>
+          {failedVideos.length == 0 && (
+            <p> Sucesso! </p>
+          )}
+
+          {failedVideos.length != 0 && (
+            <div>
+              <p className="text-center"> {failedVideos.length} vídeos falharam ao serem copiados... </p>
+
+              <Table
+                headers={['URL', 'Erro']}
+                rows={failedVideos.map(item => {
+                  return [
+                    { value: <p>{`https://www.youtube.com/watch?v=${item.videoId}`}</p> },
+                    { value: <p>{item.error ?? 'Indefinido'}</p> }
+                  ]
+                })}
+              />
+            </div>
+          )}
 
           <Button
             onClick={() => navigate(routes.homePage.path)}

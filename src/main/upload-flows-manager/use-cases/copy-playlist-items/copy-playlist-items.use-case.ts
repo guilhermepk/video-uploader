@@ -54,8 +54,8 @@ export class CopyPlaylistItemsUseCase {
           });
 
           results.push({ videoId, success: result.success });
-        } catch (error) {
-          results.push({ videoId, success: false, error: String(error) });
+        } catch (error: any) {
+          results.push({ videoId, success: false, error: error.message ?? String(error) });
         }
       }
 
