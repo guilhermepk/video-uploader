@@ -17,25 +17,33 @@ export async function googleApiResilience<T>(
   } = options ?? {};
   let attempts: number = 1;
 
-  return await new Promise(async (resolve, reject) => {
+
+  const promiseResult: T = await new Promise(async (resolve, reject) => {
+    let rejectedError: any = null;
+
     while (attempts <= maxAttempts) {
       try {
         logger.debug(`[${actionName}] Requisitando ao Google... (${attempts}/${maxAttempts})`);
 
-        const result = await callback()
-
+        const callbackResult = await callback();
 
         logger.debug(`[${actionName}] Fluxo de resiliência encerrado (${attempts}/${maxAttempts})`);
 
         attempts = maxAttempts + 1;
 
-        resolve(result);
+        resolve(callbackResult);
       } catch (error: any) {
-        if (error! instanceof gaxios.GaxiosError) reject(error);
+        if (error! instanceof gaxios.GaxiosError) {
+          rejectedError = error;
+          break;
+        }
 
         const { status, message } = error;
 
-        if (status !== HttpStatus.FORBIDDEN && status !== HttpStatus.TOO_MANY_REQUESTS) reject(error);
+        if (status !== HttpStatus.FORBIDDEN && status !== HttpStatus.TOO_MANY_REQUESTS) {
+          rejectedError = error;
+          break;
+        }
 
         const errorMessage = `Erro ${status} - "${message}".`;
 
@@ -44,7 +52,8 @@ export async function googleApiResilience<T>(
 
           logger.error(`[${actionName}] Todas as ${maxAttempts} foram mal sucedidas. ${errorMessage}`);
 
-          reject(error);
+          rejectedError = error;
+          break;
         } else {
           logger.warn(`[${actionName}] ${errorMessage}`);
           attempts += 1;
@@ -53,5 +62,10 @@ export async function googleApiResilience<T>(
         }
       }
     }
+
+    if (rejectedError !== null) reject(rejectedError);
   });
+
+
+  return promiseResult;
 }
