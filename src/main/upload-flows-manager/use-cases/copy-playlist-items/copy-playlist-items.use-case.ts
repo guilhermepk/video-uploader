@@ -47,12 +47,16 @@ export class CopyPlaylistItemsUseCase {
           throw new InternalError(`Não foi possível obter o ID dos vídeos da playlist de origem${playlistTitle}. (É necessário correção no código fonte).`)
         }
 
-        const result = await this.insertVideoInPlaylistsUseCase.execute({
-          video: videoId,
-          playlist: destinationPlaylistId
-        });
+        try {
+          const result = await this.insertVideoInPlaylistsUseCase.execute({
+            video: videoId,
+            playlist: destinationPlaylistId
+          });
 
-        results.push({ videoId, success: result.success });
+          results.push({ videoId, success: result.success });
+        } catch (error) {
+          results.push({ videoId, success: false, error: String(error) });
+        }
       }
 
       return results;
