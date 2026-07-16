@@ -2,7 +2,6 @@ import { routes } from "@renderer/common/routes";
 import Button from "@renderer/components/Button";
 import Page from "@renderer/components/Page";
 import Select from "@renderer/components/Select";
-import { sleep } from "@shared/utils/sleep";
 import { youtube_v3 } from "googleapis";
 import { ChevronsDown, CopyPlus } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -15,6 +14,7 @@ export default function CopyPlaylistItemsPage(): React.JSX.Element {
   const [originPlaylist, setOriginPlaylist] = useState<youtube_v3.Schema$Playlist | undefined>(undefined);
   const [destinationPlaylist, setDestinationPlaylist] = useState<youtube_v3.Schema$Playlist | undefined>(undefined);
   const [finished, setFinished] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   async function copyPlaylistItems(): Promise<void> {
     if (!originPlaylist || !destinationPlaylist) {
@@ -38,6 +38,8 @@ export default function CopyPlaylistItemsPage(): React.JSX.Element {
 
     toast.promise(async () => {
       try {
+        setLoading(true);
+
         const response = await window.api.uploadFlowsManager.copyPlaylistItems({
           originPlaylistId: originPlaylist.id ?? '',
           destinationPlaylistId: destinationPlaylist.id ?? '',
@@ -65,6 +67,7 @@ export default function CopyPlaylistItemsPage(): React.JSX.Element {
     }, {
       loading: (<p> Copiando itens... Pera aí! </p>),
       success: () => {
+        setLoading(false);
         setFinished(true);
 
         return (
@@ -74,12 +77,16 @@ export default function CopyPlaylistItemsPage(): React.JSX.Element {
           </div>
         );
       },
-      error: () => (
-        <div className="flex flex-col items-centes justify-center gap-2 text-center select-text">
-          <p> Erro! </p>
-          <p> {errorToastMessage} </p>
-        </div>
-      )
+      error: () => {
+        setLoading(false);
+
+        return (
+          <div className="flex flex-col items-centes justify-center gap-2 text-center select-text">
+            <p> Erro! </p>
+            <p> {errorToastMessage} </p>
+          </div>
+        );
+      }
     });
   }
 
@@ -133,6 +140,7 @@ export default function CopyPlaylistItemsPage(): React.JSX.Element {
 
           <Button
             onClick={() => copyPlaylistItems()}
+            disabled={loading || finished}
           >
             <CopyPlus />
             Copiar itens da playlist
