@@ -49,7 +49,7 @@ export default function CopyPlaylistItemsPage(): React.JSX.Element {
           const totalVideos: number = response.data.length;
           const totalSuccessfullVideos: number = response.data.reduce((previous, current) => previous += current.success ? 1 : 0, 0)
           const totalErrorVideos: number = response.data.reduce((previous, current) => previous += current.success ? 0 : 1, 0)
-          let message: string = `Resultado de ${totalVideos} vídeo(s)`;
+          let message: string = '';
           if (totalSuccessfullVideos > 0) message += `\nBem-sucedidos: (${totalSuccessfullVideos}/${totalVideos})`
           if (totalErrorVideos > 0) message += `\nDeram errado: (${totalErrorVideos}/${totalVideos})`;
           successToastMessage = message;
