@@ -1,4 +1,5 @@
 import { HttpStatus, Logger } from "@nestjs/common";
+import { ServiceUnavailableError } from "@shared/models/errors/service-unavailable.error";
 import { sleep } from "@shared/utils/sleep";
 import { gaxios } from "google-auth-library";
 
@@ -33,7 +34,7 @@ export async function googleApiResilience<T>(
 
         resolve(callbackResult);
       } catch (error: any) {
-        if (error! instanceof gaxios.GaxiosError) {
+        if (!(error instanceof gaxios.GaxiosError)) {
           rejectedError = error;
           break;
         }
@@ -43,6 +44,21 @@ export async function googleApiResilience<T>(
         if (status !== HttpStatus.FORBIDDEN && status !== HttpStatus.TOO_MANY_REQUESTS) {
           rejectedError = error;
           break;
+        }
+
+        if (status === HttpStatus.FORBIDDEN) {
+          const reasons: Array<string> = error.response?.data?.error?.errors.map(item => item.reason).filter(item => typeof item != 'string');
+
+          if (reasons.find(item => item == 'quotaExceeded')) {
+            throw new ServiceUnavailableError(`O limite de cota do Google foi excedido. Por favor, tente novamente mais tarde.`);
+          }
+
+          const nonRetryErrors = reasons.filter(item => item != 'rateLimitExceeded' && item != 'userRateLimitExceeded');
+
+          if (nonRetryErrors.length > 0) {
+            rejectedError = error;
+            break;
+          }
         }
 
         const errorMessage = `Erro ${status} - "${message}".`;
