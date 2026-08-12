@@ -43,7 +43,7 @@ export default function CopyPlaylistItemsPage(): React.JSX.Element {
       try {
         setLoading(true);
 
-        const response = await window.api.uploadFlowsManager.copyPlaylistItems({
+        const response = await window.api.uploadFlowsManager.copyPlaylistItems.execute({
           originPlaylistId: originPlaylist.id ?? '',
           destinationPlaylistId: destinationPlaylist.id ?? '',
         });
