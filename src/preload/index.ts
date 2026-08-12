@@ -9,6 +9,7 @@ import { DownloadAndRenameDto } from '@shared/models/dtos/upload-flow-manager/do
 import { DownloadAndRenameUseCase } from '@main/upload-flows-manager/use-cases/download-and-rename/download-and-rename.use-case'
 import { subscribe } from './utils/subscribe.util'
 import { CopyPlaylistItemsDto } from '@shared/models/dtos/upload-flow-manager/copy-playlist-items.dto'
+import { CopyPlaylistItemsUseCase } from '@main/upload-flows-manager/use-cases/copy-playlist-items/copy-playlist-items.use-case'
 
 const api: ContextBridgeApi = {
   google: {
@@ -33,7 +34,10 @@ const api: ContextBridgeApi = {
     onDownloadProgress: (callback) => subscribe(`${DownloadAndRenameUseCase.name}/progress`, callback),
     onTotalRows: (callback) => subscribe(`${DownloadAndRenameUseCase.name}/total-rows`, callback),
     updateVideos: (payload) => ipcRenderer.invoke('upload-flows/update-videos', payload),
-    copyPlaylistItems: (payload: CopyPlaylistItemsDto) => ipcRenderer.invoke('upload-flows/copy-playlist-items', payload)
+    copyPlaylistItems: {
+      execute: (payload: CopyPlaylistItemsDto) => ipcRenderer.invoke('upload-flows/copy-playlist-items', payload),
+      onResult: (callback) => subscribe(`${CopyPlaylistItemsUseCase.name}/result-item`, callback),
+    }
   },
 }
 

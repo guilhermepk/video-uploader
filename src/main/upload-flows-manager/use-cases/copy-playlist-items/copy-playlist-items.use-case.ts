@@ -5,13 +5,12 @@ import { tryCatch } from "@main/common/utils/try-catch";
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { CopyPlaylistItemsDto } from "@shared/models/dtos/upload-flow-manager/copy-playlist-items.dto";
 import { InternalError } from "@shared/models/errors/internal.error";
-import { CopyPlaylistItemsResponse } from "@shared/models/responses/upload-flows-manager/copy-playlist-items-response";
+import { CopyPlaylistItemsResponse, ResultItemInCopyPlaylistItemsResponse } from "@shared/models/responses/upload-flows-manager/copy-playlist-items-response";
+import { BrowserWindow } from "electron";
 import { youtube_v3 } from "googleapis";
 
 @Injectable()
 export class CopyPlaylistItemsUseCase {
-  private logger = new Logger(CopyPlaylistItemsUseCase.name);
-
   constructor(
     @Inject(FindPlaylistByIdUseCase)
     private readonly findPlaylistByIdUseCase: FindPlaylistByIdUseCase,
@@ -48,18 +47,36 @@ export class CopyPlaylistItemsUseCase {
         }
 
         try {
-          const result = await this.insertVideoInPlaylistsUseCase.execute({
+          const response = await this.insertVideoInPlaylistsUseCase.execute({
             video: videoId,
             playlist: destinationPlaylistId
           });
 
-          results.push({ videoId, success: result.success });
+          const result: ResultItemInCopyPlaylistItemsResponse = { videoId, success: response.success };
+          this.emitResult(result);
+          results.push(result);
         } catch (error: any) {
-          results.push({ videoId, success: false, error: error.message ?? String(error) });
+          const result: ResultItemInCopyPlaylistItemsResponse = { videoId, success: false, error: error.message ?? String(error) };
+          this.emitResult(result);
+          results.push(result);
         }
       }
 
       return results;
     }, `Erro ao copiar playlist`);
+  }
+
+
+  private emitResult(
+    result: ResultItemInCopyPlaylistItemsResponse
+  ) {
+    this.emit(`${CopyPlaylistItemsUseCase.name}/result-item`, result)
+  }
+
+
+  private emit(channel: string, payload: any): void {
+    BrowserWindow.getAllWindows().forEach((win) => {
+      win.webContents.send(channel, payload);
+    });
   }
 }
