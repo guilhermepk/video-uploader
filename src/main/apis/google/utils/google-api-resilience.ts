@@ -1,5 +1,4 @@
 import { HttpStatus, Logger } from "@nestjs/common";
-import { ServiceUnavailableError } from "@shared/models/errors/service-unavailable.error";
 import { sleep } from "@shared/utils/sleep";
 import { gaxios } from "google-auth-library";
 
