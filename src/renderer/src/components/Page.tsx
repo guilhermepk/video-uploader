@@ -11,7 +11,7 @@ export default function Page({
   return (
     <div
       className={`
-        flex flex-col items-center p-10 gap-10 w-full h-full
+        flex flex-col items-center p-10 gap-10 w-full h-screen overflow-hidden
         ${className}
       `}
     >

@@ -14,7 +14,7 @@ export default function Table({
   headers, rows
 }: TableProps): React.JSX.Element {
   return (
-    <div className="h-min w-full overflow-y-auto shadow-lg shadow-[rgba(0,0,0,0.4)]">
+    <div className="flex-1 min-h-0 w-full overflow-y-auto shadow-lg shadow-[rgba(0,0,0,0.4)]">
       <table className="bg-[#1b1b1f] w-full text-center">
         <thead>
           <tr>

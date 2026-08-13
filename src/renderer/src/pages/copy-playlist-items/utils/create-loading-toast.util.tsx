@@ -5,15 +5,15 @@ import ErrorToast from "../components/toasts/ErrorToast";
 
 
 type Params = {
-  setLoading: (value: boolean) => void,
-  setFinished: (value: boolean) => void,
+  setStarted: () => void,
+  setFinished: () => void,
   callback: (setToastSuccessMessage: (newMessage: string) => void) => Promise<void>
 }
 
 
 export function createLoadingToast({
-  setLoading,
   setFinished,
+  setStarted,
   callback
 }: Params) {
   let errorToastMessage: string = '';
@@ -25,16 +25,16 @@ export function createLoadingToast({
 
   toast.promise(async () => {
     try {
-      setLoading(true);
-
+      setStarted();
       await callback(setToastSuccessMessage);
     } catch (error: any) {
       errorToastMessage = error.message ?? String(error);
+      setFinished();
       throw error;
     }
   }, {
     loading: <LoadingToast />,
-    success: () => <SuccessToast setFinished={setFinished} setLoading={setLoading} successToastMessage={successToastMessage} />,
-    error: () => <ErrorToast errorToastMessage={errorToastMessage} setLoading={setLoading} />
+    success: () => <SuccessToast successToastMessage={successToastMessage} />,
+    error: () => <ErrorToast errorToastMessage={errorToastMessage} />
   });
 }

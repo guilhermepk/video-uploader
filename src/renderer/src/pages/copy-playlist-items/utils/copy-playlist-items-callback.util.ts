@@ -5,7 +5,7 @@ import { youtube_v3 } from "googleapis";
 type Params = {
   originPlaylistId: string,
   destinationPlaylistId: string,
-  setFailedVideos: (value: React.SetStateAction<Array<ResultItemInCopyPlaylistItemsResponse>>) => void,
+  setResults: (value: React.SetStateAction<Array<ResultItemInCopyPlaylistItemsResponse>>) => void,
   setOriginPlaylist: (value: React.SetStateAction<youtube_v3.Schema$Playlist | undefined>) => void,
   setDestinationPlaylist: (value: React.SetStateAction<youtube_v3.Schema$Playlist | undefined>) => void,
   setToastSuccessMessage: (newMessage: string) => void
@@ -15,7 +15,7 @@ type Params = {
 export async function copyPlaylistItemsCallback({
   originPlaylistId,
   destinationPlaylistId,
-  setFailedVideos,
+  setResults,
   setOriginPlaylist,
   setDestinationPlaylist,
   setToastSuccessMessage
@@ -34,7 +34,7 @@ export async function copyPlaylistItemsCallback({
     if (totalErrorVideos > 0) message += `\nDeram errado: (${totalErrorVideos}/${totalVideos})`;
     setToastSuccessMessage(message);
 
-    setFailedVideos(response.data.filter(item => !item.success));
+    setResults(response.data);
 
     setOriginPlaylist(undefined);
     setDestinationPlaylist(undefined);
