@@ -47,7 +47,12 @@ export async function googleApiResilience<T>(
         }
 
         if (status === HttpStatus.FORBIDDEN) {
+          if (message.includes('you have exceeded your') && message.includes('quota')) {
+            throw new ServiceUnavailableError(`O limite de cota do Google foi excedido. Por favor, tente novamente mais tarde.`);
+          }
+
           const reasons: Array<string> = error.response?.data?.error?.errors.map(item => item.reason).filter(item => typeof item != 'string');
+
 
           if (reasons.find(item => item == 'quotaExceeded')) {
             throw new ServiceUnavailableError(`O limite de cota do Google foi excedido. Por favor, tente novamente mais tarde.`);
