@@ -7,8 +7,12 @@ import { ResultItemInCopyPlaylistItemsResponse } from "@shared/models/responses/
 import { youtube_v3 } from "googleapis";
 import { ChevronsDown, CopyPlus } from "lucide-react";
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { getPlaylists } from "./utils/get-playlists.util";
+import { createLoadingToast } from "./utils/create-loading-toast.util";
+import { validateFields } from "./utils/validate-fields.util";
+import { copyPlaylistItemsCallback } from "./utils/copy-playlist-items-callback.util";
+
 
 export default function CopyPlaylistItemsPage(): React.JSX.Element {
   const navigate = useNavigate();
@@ -19,97 +23,33 @@ export default function CopyPlaylistItemsPage(): React.JSX.Element {
   const [loading, setLoading] = useState<boolean>(false);
   const [failedVideos, setFailedVideos] = useState<Array<ResultItemInCopyPlaylistItemsResponse>>([]);
 
+
   async function copyPlaylistItems(): Promise<void> {
-    if (!originPlaylist || !destinationPlaylist) {
-      const emptyFields: string[] = [];
-      if (!originPlaylist) emptyFields.push('A playlist de origem');
-      if (!destinationPlaylist) emptyFields.push('A playlist de destino');
-      toast(`Selecione: ${emptyFields.map(item => `"${item}"`).join('; ')}`);
-      return
-    }
+    const validateFieldsResponse = validateFields(originPlaylist, destinationPlaylist);
 
-    if (!originPlaylist.id || !destinationPlaylist.id) {
-      const missingIds: string[] = [];
-      if (!originPlaylist.id) missingIds.push('Playlist de origem');
-      if (!destinationPlaylist.id) missingIds.push('Playlist de destino');
-      toast(`Não foi possível obter o ID de: ${missingIds.map(item => `"${item}"`).join('; ')}\n(É necessário correção no código fonte)`);
-      return
-    }
+    if (!validateFieldsResponse) return;
 
-    let errorToastMessage: string = '';
-    let successToastMessage: string = '';
+    const { originPlaylistId, destinationPlaylistId } = validateFieldsResponse;
 
-    toast.promise(async () => {
-      try {
-        setLoading(true);
-
-        const response = await window.api.uploadFlowsManager.copyPlaylistItems.execute({
-          originPlaylistId: originPlaylist.id ?? '',
-          destinationPlaylistId: destinationPlaylist.id ?? '',
-        });
-
-        if (response.success) {
-          const totalVideos: number = response.data.length;
-          const totalSuccessfullVideos: number = response.data.reduce((previous, current) => previous += current.success ? 1 : 0, 0)
-          const totalErrorVideos: number = response.data.reduce((previous, current) => previous += current.success ? 0 : 1, 0)
-          let message: string = '';
-          if (totalSuccessfullVideos > 0) message += `\nBem-sucedidos: (${totalSuccessfullVideos}/${totalVideos})`
-          if (totalErrorVideos > 0) message += `\nDeram errado: (${totalErrorVideos}/${totalVideos})`;
-          successToastMessage = message;
-
-          setFailedVideos(response.data.filter(item => !item.success));
-
-          setOriginPlaylist(undefined);
-          setDestinationPlaylist(undefined);
-        } else {
-          const { code, message, details } = response.error;
-          throw new Error(`${code} | ${message}${details ? ` | ${details.join('; ')}` : ''}`);
-        }
-      } catch (error: any) {
-        errorToastMessage = error.message ?? String(error);
-        throw error;
-      }
-    }, {
-      loading: (<p> Copiando itens... Pera aí! </p>),
-      success: () => {
-        setLoading(false);
-        setFinished(true);
-
-        return (
-          <div className="flex flex-col items-centes justify-center gap-2 text-center select-text">
-            <p> Sucesso! </p>
-            <p> {successToastMessage} </p>
-          </div>
-        );
-      },
-      error: () => {
-        setLoading(false);
-
-        return (
-          <div className="flex flex-col items-centes justify-center gap-2 text-center select-text">
-            <p> Erro! </p>
-            <p> {errorToastMessage} </p>
-          </div>
-        );
-      }
+    createLoadingToast({
+      setLoading,
+      setFinished,
+      callback: (setToastSuccessMessage) => copyPlaylistItemsCallback({
+        originPlaylistId,
+        destinationPlaylistId,
+        setFailedVideos,
+        setOriginPlaylist,
+        setDestinationPlaylist,
+        setToastSuccessMessage
+      })
     });
   }
 
-  async function getPlaylists(): Promise<void> {
-    const response = await window.api.google.youtube.getPlaylists();
-
-    if (response.success) {
-      const { playlists } = response.data;
-      setPlaylists(playlists);
-    } else {
-      const { code, message, details } = response.error;
-      toast(`Erro: ${code} | ${message} | ${details}`);
-    }
-  }
 
   useEffect(() => {
-    getPlaylists();
+    getPlaylists(setPlaylists);
   }, []);
+
 
   return (
     <Page>

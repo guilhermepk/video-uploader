@@ -2,7 +2,8 @@ import UpdateVideosFlowPage from "@renderer/pages/update-videos-flow/UpdateVideo
 import FullFlowPage from "@renderer/pages/FullFlowPage";
 import HomePage from "@renderer/pages/home/HomePage";
 import LoginPage from "@renderer/pages/LoginPage";
-import CopyPlaylistItemsPage from "@renderer/pages/CopyPlaylistItemsPage";
+import CopyPlaylistItemsPage from "@renderer/pages/copy-playlist-items/CopyPlaylistItemsPage";
+
 
 export const routes = {
   loginPage: {
